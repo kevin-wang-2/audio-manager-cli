@@ -5,6 +5,11 @@ project(audio_manager_cli LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ASIO
+# Folder Structure:
+# asio - inc    - all header files "*.h"
+#      - host   - source files in "host" section of ASIO SDK in original layout
+#      - common - source files in "common" section of ASIO SDK in original layout
 include_directories(asio/inc)
 
 set(ASIO_SOURCES asio/common/asio.cpp asio/common/combase.cpp asio/common/debugmessage.cpp asio/common/register.cpp)
@@ -14,6 +19,7 @@ set(ASIO_SOURCES ${ASIO_SOURCES} asio/host/pc/asiolist.cpp)
 set(ASIO_HEADERS asio/inc/asio.h asio/inc/asiodrivers.h asio/inc/asiodrvr.h
     asio/inc/asiosys.h asio/inc/combase.h asio/inc/ginclude.h asio/inc/iasiodrv.h asio/inc/wxdebug.h asio/inc/asiolist.h)
 
+# Project Codes
 include_directories(drivers/abstraction)
 include_directories(drivers/asio)
 

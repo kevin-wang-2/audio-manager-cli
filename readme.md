@@ -33,3 +33,6 @@
 
 7. Plugin Structure - **To be done**
   - VST Plugin Wrapper
+
+## ASIO Issues
+Because ASIO forbids distributing sourcecode, excluded all the ASIO source codes in .gitignore. But for convinience, I modified the ASIO folder layout, details could be found in `CMakeLists.txt`.
