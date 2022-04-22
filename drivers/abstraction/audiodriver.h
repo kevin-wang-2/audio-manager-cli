@@ -67,10 +67,10 @@ public:
 
 // Callbacks
     using GenericCallback = std::function<void(int, void *)>;
-    using BufferSwitchCallback = std::function<void(int)>;
+    using SynchronizationCallback = std::function<void(double)>;
 
     virtual void setGenericCallback(const GenericCallback &cb) = 0;
-    virtual void setBufferSwitchCallback(const BufferSwitchCallback &cb) = 0;
+    virtual void setSynchronizationCallback(const SynchronizationCallback &cb) = 0;
 };
 
 #endif // AUDIODRIVER_H

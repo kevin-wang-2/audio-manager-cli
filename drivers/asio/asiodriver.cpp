@@ -189,6 +189,8 @@ ASIOTime *AsioDriver::bufferSwitchTimeInfo(ASIOTime *timeInfo, long index, ASIOB
     // get the system reference time
     asioDriverInfo.sysRefTime = getSysReferenceTime();
 
+    activeDriver->s_cb(asioDriverInfo.samples);
+
     int bufferSize = asioDriverInfo.preferredSize;
     double buffer[bufferSize];
     double *pbuffer[1];
@@ -200,9 +202,6 @@ ASIOTime *AsioDriver::bufferSwitchTimeInfo(ASIOTime *timeInfo, long index, ASIOB
             activeDriver->channels[track + asioDriverInfo.inputChannels].fillBuffer(buffer, index);
         }
     }
-
-    activeDriver->b_cb(index);
-
     /*
 
     if (processedSamples >= asioDriverInfo.sampleRate * TEST_RUN_TIME)	// roughly measured

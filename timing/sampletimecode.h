@@ -7,8 +7,8 @@ class SampleTimeCode
     SampleTimeCode();
 public:
     static void init();
-    static int get();
-    static void tick();
+    static double get();
+    static void set(double sample);
 };
 
 #endif // SAMPLETIMECODE_H

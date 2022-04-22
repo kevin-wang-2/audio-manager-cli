@@ -11,7 +11,7 @@ void Sine::fillBuffer(int, double *buffer[], int bufferSize)
     double sample = 1000000.0 / sampleRate;
 
 
-    double microSecs = SampleTimeCode::get() * sample * bufferSize;
+    double microSecs = SampleTimeCode::get() * sample;
 
     for(int i = 0; i < bufferSize; i++)
     {

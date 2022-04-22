@@ -80,7 +80,7 @@ class AsioDriver : public AudioDriver
 
     // User Callbacks
     GenericCallback g_cb;
-    BufferSwitchCallback b_cb;
+    SynchronizationCallback s_cb;
 
     // Channel Abstraction Layer
     std::vector<AudioChannel> channels;
@@ -152,7 +152,7 @@ public:
 
     // Callbacks
     virtual void setGenericCallback(const GenericCallback &cb) final { g_cb = cb; };
-    virtual void setBufferSwitchCallback(const BufferSwitchCallback &cb) final { b_cb = cb; };
+    virtual void setSynchronizationCallback(const SynchronizationCallback &cb) final { s_cb = cb; };
 };
 
 #endif // ASIODRIVER_H

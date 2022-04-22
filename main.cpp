@@ -51,9 +51,7 @@ int main() {
     drv.connectGenerator(fader, l, {{0, 0}});
     drv.connectGenerator(fader, r, {{0, 1}});
 
-    drv.setBufferSwitchCallback([](int) {
-        SampleTimeCode::tick();
-    });
+    drv.setSynchronizationCallback(SampleTimeCode::set);
 
     cout << "Configuration Done." << endl;
 

@@ -1,7 +1,7 @@
 #include "sampletimecode.h"
 
-static int sample;
+static double sample;
 
 void SampleTimeCode::init() { sample = 0; }
-int SampleTimeCode::get() { return sample; }
-void SampleTimeCode::tick() { sample++; }
+double SampleTimeCode::get() { return sample; }
+void SampleTimeCode::set(double _sample) { sample = _sample; }
