@@ -11,6 +11,7 @@
 #include <functional>
 #include "audiochannel.h"
 #include "audioreciever.h"
+#include "AudioError.h"
 
 typedef enum {
     BD_INT16LSB,
@@ -42,14 +43,14 @@ public:
 
 // Driver Selection
     virtual std::vector<std::string> getDriverNames() const = 0;
-    virtual void loadDriver(int id) = 0;
+    virtual AudioDriverError loadDriver(int id) = 0;
 
 // Audio Core Function
     virtual void startAudio() = 0;
     virtual void stopAudio() = 0;
 
 // Setters
-    virtual void setSampleRate(double sampleRate) = 0;
+    virtual AudioDriverError setSampleRate(double sampleRate) = 0;
     virtual void setBufferSize(int bufferSize) = 0;
 
 // Generic Getters

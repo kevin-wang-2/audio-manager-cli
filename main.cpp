@@ -19,13 +19,16 @@ int main() {
         cout << i++ << ":" << name << endl;
     }
 
+select:
     cout << "Select an ASIO Driver:";
     cin >> i;
 
-    drv.loadDriver(i);
+    if(drv.loadDriver(i)) {
+        cout << "Cannot Start ASIO." << endl;
+        goto select;
+    }
 
     drv.setSampleRate(48000.0);
-    drv.setSampleRate(512);
 
     int outputChannelCnt = drv.getOutputChannelCnt();
     int inputChannelCnt = drv.getInputChannelCnt();

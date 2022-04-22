@@ -46,7 +46,7 @@ include_directories(timing)
 set(TIMING_SOURCES timing/sampletimecode.h timing/sampletimecode.cpp)
 
 include_directories(meta)
-set(META meta/audiometa.h)
+set(META meta/audiometa.h meta/AudioError.h)
 
 set(CLI_ENTRANCE ${ASIO_SOURCES} ${ASIO_HEADERS} ${AUDIO_DRIVER_SOURCES}
     ${AUDIO_PROCESSOR_SOURCES} ${TIMING_SOURCES} ${META} main.cpp)

@@ -335,7 +335,7 @@ std::vector<std::string> AsioDriver::getDriverNames() const {
     return ret;
 }
 
-void AsioDriver::loadDriver(int id) {
+AudioDriverError AsioDriver::loadDriver(int id) {
     AsioDrivers drvGrp;
 
     // 1. Get Driver Names
@@ -358,18 +358,23 @@ void AsioDriver::loadDriver(int id) {
                 asioCallbacks.bufferSwitchTimeInfo = bufferSwitchTimeInfo;
                 if (createAsioBuffers (&asioDriverInfo) == ASE_OK)
                 {
+                    return ADE_OK;
+                } else goto err_exit_asio;
+            } else goto err_exit_asio;
+        } else goto err_unload_driver;
 
-                }
-            }
-        }
-    }
+    } else goto err;
 
+err_exit_asio:
+    ASIOExit();
+err_unload_driver:
+    drvGrp.removeCurrentDriver();
 err:
-    // TODO: Handle Errors
-    return;
+    return ADE_Cannot_Connect;
 }
 
-void AsioDriver::setSampleRate(double sampleRate) {
+AudioDriverError AsioDriver::setSampleRate(double sampleRate) {
+    if (ASIOCanSampleRate(sampleRate) != ASE_OK) return ADE_Not_Supported;
     if(ASIOGetSampleRate(&asioDriverInfo.sampleRate) == ASE_OK)
     {
         sampleRate = asioDriverInfo.sampleRate;
@@ -378,14 +383,15 @@ void AsioDriver::setSampleRate(double sampleRate) {
             if (asioDriverInfo.sampleRate <= 0.0 || asioDriverInfo.sampleRate > 96000.0) {
                 if (ASIOSetSampleRate(sampleRate) == ASE_OK) {
                     ASIOGetSampleRate(&asioDriverInfo.sampleRate);
-                    sampleRate = asioDriverInfo.sampleRate;
+                    this->sampleRate = asioDriverInfo.sampleRate;
+                    return ADE_OK;
                 }
             }
         }
     }
 err:
     // TODO: Handle Errors
-    return;
+    return ADE_Operation_Failed;
 }
 
 void AsioDriver::setBufferSize(int bufferSize) {

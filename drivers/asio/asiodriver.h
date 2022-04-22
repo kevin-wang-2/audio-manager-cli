@@ -89,14 +89,14 @@ public:
 
     // Driver Selection
     virtual std::vector<std::string> getDriverNames() const final;
-    virtual void loadDriver(int id) final;
+    virtual AudioDriverError loadDriver(int id) final;
 
     // Audio Core Function
     virtual void startAudio();
     virtual void stopAudio();
 
     // Setters
-    virtual void setSampleRate(double sampleRate);
+    virtual AudioDriverError setSampleRate(double sampleRate);
     virtual void setBufferSize(int bufferSize);
 
     // Generic Getters
