@@ -1,0 +1,35 @@
+# A CLI Interface Audio Unit
+
+## Progress:
+1. Basic Audio Routing Layouts - **Finished**
+  - Audio Input Interface - **Finished**
+    `AudioReciever`, allows multiple device to connect, and multi-track audio input (supports various track format).
+  - Audio Output Interface - **Finished**
+     `AudioGenerator`, allow multitrack output
+
+2. Basic ASIO Interface - **Under Progress**
+  - ASIO Output Interface - **Finished**
+  - ASIO Input Inteface - **To be done**
+  - ASIO Driver Select & Ultilities - **In Progress**
+    TODOs:
+      1. Error Process when "Fail to Connect" happens
+
+3. Basic WDM Interface - **To be done**
+
+4. Basic Routing Units - **Under Progress**
+  - Fader - **Finished**
+    Fader, including MUTE button
+  - Panner - **To be done**
+  - Mixer - **To be done**
+
+5. Basic Signaling Units - **Under Progress**
+  - Basic Wave Generator - **Under Progress**
+    Sine generator has been finished to test the routing facilities.
+  - Waveform Player - **Under Progress**
+
+6. Basic DSP Units - **To be done**
+  - Basic Parametric EQ
+  - Basic Dynamics Effects
+
+7. Plugin Structure - **To be done**
+  - VST Plugin Wrapper
