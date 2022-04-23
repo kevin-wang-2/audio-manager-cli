@@ -25,7 +25,7 @@
 5. Basic Signaling Units - **Under Progress**
   - Basic Wave Generator - **Under Progress**
     Sine generator has been finished to test the routing facilities.
-  - Waveform Player - **Under Progress**
+  - Waveform Player - **Finished**
 
 6. Basic DSP Units - **To be done**
   - Basic Parametric EQ
