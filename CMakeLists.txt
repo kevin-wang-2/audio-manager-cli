@@ -16,8 +16,8 @@ set(ASIO_SOURCES ../asio/common/asio.cpp ../asio/common/combase.cpp ../asio/comm
 set(ASIO_SOURCES ${ASIO_SOURCES} ../asio/host/asiodrivers.cpp ../asio/host/ASIOConvertSamples.cpp)
 set(ASIO_SOURCES ${ASIO_SOURCES} ../asio/host/pc/asiolist.cpp)
 
-set(ASIO_HEADERS asio/inc/asio.h asio/inc/asiodrivers.h asio/inc/asiodrvr.h
-    asio/inc/asiosys.h asio/inc/combase.h asio/inc/ginclude.h asio/inc/iasiodrv.h asio/inc/wxdebug.h asio/inc/asiolist.h)
+set(ASIO_HEADERS ../asio/inc/asio.h ../asio/inc/asiodrivers.h ../asio/inc/asiodrvr.h
+    ../asio/inc/asiosys.h ../asio/inc/combase.h ../asio/inc/ginclude.h ../asio/inc/iasiodrv.h ../asio/inc/wxdebug.h ../asio/inc/asiolist.h)
 
 # Project Codes
 include_directories(drivers/abstraction)
