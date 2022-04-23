@@ -22,18 +22,29 @@ class WaveformPlayer : public AudioGenerator
 
     typedef struct RiffHeader {
         RiffFmt fmt;
+        int audioSize;
     } RiffHeader;
 
     RiffHeader header;
 
-    std::vector<std::pair<double, double>> samples;
+    std::vector<std::vector<double>> samples;
 
-    void parseRIFF(const std::string &fn);
+    void parseRIFFHeader(FILE *fp);
+
+    void parseRIFFContent(FILE *fp);
+
+    void parseRIFF(const std::string &fn, TrackType type);
+
+    void parseRIFF(const std::string &fn, const std::vector<TrackType> &type);
 
 public:
-    WaveformPlayer(double _sampleRate, const std::string &fn) :
-        AudioGenerator(_sampleRate, 1, {TRK_STEREO}) {
-        parseRIFF(fn);
+    WaveformPlayer(double _sampleRate, const std::string &fn, TrackType type = TRK_STEREO) :
+        AudioGenerator(_sampleRate, 1, {type}) {
+        parseRIFF(fn, type);
+    }
+    WaveformPlayer(double _sampleRate, const std::string &fn, const std::vector<TrackType> &type) :
+        AudioGenerator(_sampleRate, type.size(), type) {
+        parseRIFF(fn, type);
     }
 
     virtual void fillBuffer(int track, double *buffer[], int bufferSize) override;

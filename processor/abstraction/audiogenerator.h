@@ -16,6 +16,11 @@ protected:
     int otrackNum;
     std::vector<TrackType> otracks;
 
+    virtual void setTracks(std::vector<TrackType> tracks) {
+        otrackNum = tracks.size();
+        otracks = std::move(tracks);
+    }
+
 public:
     AudioGenerator(double _sampleRate, int _trackNum = 1, std::vector<TrackType> _tracks = {TRK_STEREO})
         : sampleRate(_sampleRate), otrackNum(_trackNum), otracks(std::move(_tracks)) {};
