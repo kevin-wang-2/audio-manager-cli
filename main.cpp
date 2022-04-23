@@ -1,6 +1,7 @@
 #include "asiodriver.h"
 #include "fader.h"
 #include "sine.h"
+#include "waveformplayer.h"
 #include "sampletimecode.h"
 #include <iostream>
 #include <cmath>
@@ -46,10 +47,15 @@ select:
 
     SampleTimeCode::init();
 
-    Sine sineGen(48000, TRK_STEREO, INT_MAX, 0, 880);
+    string filename;
+    cout << "File to play: ";
+    cin >> filename;
+
+    WaveformPlayer gen(48000, filename);
+    Sine sine(48000, TRK_STEREO, INT_MAX, 0, 440);
     Fader fader(48000, TRK_STEREO);
 
-    fader.connectGenerator(sineGen, 0);
+    fader.connectGenerator(gen, 0);
 
     drv.connectGenerator(fader, l, {{0, 0}});
     drv.connectGenerator(fader, r, {{0, 1}});

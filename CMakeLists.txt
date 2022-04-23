@@ -35,7 +35,8 @@ set(AUDIO_PROCESSOR_SOURCES processor/abstraction/audiogenerator.h processor/abs
 
 include_directories(processor/generator)
 
-set(AUDIO_GENERATOR_SOURCES processor/generator/sine.h processor/generator/sine.cpp)
+set(AUDIO_GENERATOR_SOURCES processor/generator/sine.h processor/generator/sine.cpp
+    processor/generator/waveformplayer.h processor/generator/waveformplayer.cpp)
 set(AUDIO_PROCESSOR_SOURCES ${AUDIO_PROCESSOR_SOURCES} ${AUDIO_GENERATOR_SOURCES})
 
 include_directories(processor/routing)
@@ -54,3 +55,8 @@ set(CLI_ENTRANCE ${ASIO_SOURCES} ${ASIO_HEADERS} ${AUDIO_DRIVER_SOURCES}
 add_executable(asio_cli ${CLI_ENTRANCE})
 
 target_link_libraries(asio_cli winmm.lib)
+
+# Test Target
+# (WAV) PCM Decoder
+
+add_executable(pcm_test tools/PCM/pcm.cpp)
