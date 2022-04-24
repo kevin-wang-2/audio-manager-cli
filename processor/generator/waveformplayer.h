@@ -7,21 +7,44 @@
 
 class WaveformPlayer : public AudioGenerator
 {
+    typedef enum {
+        RHC_FMT,
+        RHC_DATA,
+        RHC_FACT,
+        RHC_UNSUPPORTED
+    } RiffHeaderChunk;
+
     typedef struct RiffFmt {
-       int size;
+       unsigned cksize:4;
 
-       short type;
-       short numChannels;
+       unsigned wFormatTag:2;
+       unsigned nChannels:2;
 
-       int sampleRate;
-       int byteRate;
+       unsigned nSamplesPerSec:4;
+       unsigned nAvgBytesPerSec:4;
 
-       short blockAlign;
-       short bitDepth;
+       unsigned nBlockAlign:2;
+       unsigned nBitsPerSample:2;
+
+       unsigned cbSize;
     } RiffFmt;
+
+    typedef struct RiffFmtExt {
+        unsigned wValidBitsPerSample:2;
+        unsigned dwChannelMask:2;
+
+        unsigned char SubFormat[8];
+    } RiffFmtExt;
+
+    typedef struct RiffFact {
+        unsigned ckSize:4;
+        unsigned dwSampleLength:4;
+    } RiffFact;
 
     typedef struct RiffHeader {
         RiffFmt fmt;
+        RiffFmtExt fmtExt;
+        RiffFact fact;
         int audioSize;
     } RiffHeader;
 
@@ -29,12 +52,11 @@ class WaveformPlayer : public AudioGenerator
 
     std::vector<std::vector<double>> samples;
 
+    static RiffHeaderChunk findByID(char ID[]);
+
     void parseRIFFHeader(FILE *fp);
-
     void parseRIFFContent(FILE *fp);
-
     void parseRIFF(const std::string &fn, TrackType type);
-
     void parseRIFF(const std::string &fn, const std::vector<TrackType> &type);
 
 public:

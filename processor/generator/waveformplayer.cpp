@@ -12,20 +12,63 @@ double intClip(int val, int depth) {
     return val << offset;
 }
 
+
+
+WaveformPlayer::RiffHeaderChunk WaveformPlayer::findByID(char ID[]) {
+    switch(ID[0]) {
+    case 'd':
+        if (ID[1] == 'a' && ID[2] == 't' && ID[3] == 'a') {
+            return RHC_DATA;
+        } else {
+            return RHC_UNSUPPORTED;
+        }
+    case 'f':
+        switch(ID[1]) {
+        case 'a':
+            if (ID[2] == 'c' && ID[3] == 't') {
+                return RHC_FACT;
+            } else {
+                return RHC_UNSUPPORTED;
+            }
+        case 'm':
+            if (ID[2] == 't') {
+                return RHC_FMT;
+            } else {
+                return RHC_UNSUPPORTED;
+            }
+        default:
+            return RHC_UNSUPPORTED;
+        }
+    default:
+        return RHC_UNSUPPORTED;
+    }
+}
+
 void WaveformPlayer::parseRIFFHeader(FILE *fp) {
     fseek(fp, 12, SEEK_SET);
 
     while (1) {
         char temp[4] = {0};
+        unsigned int size;
         fread(temp, 1, 4, fp);
-        if (temp[0] == 'f' && temp[1] == 'm' && temp[2] == 't') {
+        switch(findByID(temp)) {
+        case RHC_FMT:
+            size = sizeof(RiffFmt) - 4;
             fread(&header.fmt, sizeof(RiffFmt), 1, fp);
-            fseek(fp, header.fmt.size - sizeof(RiffFmt) + 4, SEEK_CUR);
-        } else if (temp[0] == 'd' && temp[1] == 'a' && temp[2] == 't' && temp[3] == 'a') {
+            size += header.fmt.cbSize;
+
+            if (header.fmt.cbSize != 0) {
+                fread(&header.fmtExt, header.fmt.cbSize, 1, fp);
+            }
+
+            if (header.fmt.cksize > size) {
+                fseek(fp, header.fmt.cksize - size, SEEK_CUR);
+            }
+        case RHC_DATA:
             fread(&header.audioSize, 4, 1, fp);
             return;
-        }else {
-            int size;
+        case RHC_FACT:
+        default:
             fread(&size, 4, 1, fp);
 
             fseek(fp, size, SEEK_CUR);
@@ -34,21 +77,21 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
 }
 
 void WaveformPlayer::parseRIFFContent(FILE *fp) {
-    int sampleSize = header.fmt.bitDepth / 8 * header.fmt.numChannels;
+    int sampleSize = header.fmt.nBitsPerSample / 8 * header.fmt.nChannels;
 
     for (int i = 0; i < header.audioSize / sampleSize; i++) {
-        unsigned char sample[header.fmt.bitDepth / 8 * header.fmt.numChannels];
+        unsigned char sample[header.fmt.nBitsPerSample / 8 * header.fmt.nChannels];
 
-        fread(sample, header.fmt.bitDepth / 8, header.fmt.numChannels, fp);
+        fread(sample, header.fmt.nBitsPerSample / 8, header.fmt.nChannels, fp);
 
         std::vector<double> vsample;
-        vsample.resize(header.fmt.numChannels);
+        vsample.resize(header.fmt.nChannels);
 
-        for (int j = 0; j < header.fmt.numChannels; j++) {
-            vsample[j] = intClip(sample[j * header.fmt.bitDepth / 8]
-                    + ((unsigned int)sample[j * header.fmt.bitDepth / 8 + 1] << 8)
-                    + ((unsigned int)sample[j * header.fmt.bitDepth / 8 + 2] << 16)
-                    + ((sample[j * header.fmt.bitDepth / 8 + 2] & 0x80) ? 0xff000000 : 0), header.fmt.bitDepth);
+        for (int j = 0; j < header.fmt.nChannels; j++) {
+            vsample[j] = intClip(sample[j * header.fmt.nBitsPerSample / 8]
+                    + ((unsigned int)sample[j * header.fmt.nBitsPerSample / 8 + 1] << 8)
+                    + ((unsigned int)sample[j * header.fmt.nBitsPerSample / 8 + 2] << 16)
+                    + ((sample[j * header.fmt.nBitsPerSample / 8 + 2] & 0x80) ? 0xff000000 : 0), header.fmt.bitDepth);
         }
 
         samples.emplace_back(std::move(vsample));
@@ -64,11 +107,11 @@ void WaveformPlayer::parseRIFF(const std::string &fn, TrackType type) {
     parseRIFFHeader(fp);
 
     // 2. Check & set channel type
-    if (trackCnt[type] < header.fmt.numChannels) {
+    if (trackCnt[type] < header.fmt.nChannels) {
         // Means that this audio is multi-channel audio
         // 1. Figure out the channel numbers and channel counts
-        int trackNum = header.fmt.numChannels / trackCnt[type];
-        int monoNum = header.fmt.numChannels % trackCnt[type];
+        int trackNum = header.fmt.nChannels / trackCnt[type];
+        int monoNum = header.fmt.nChannels % trackCnt[type];
 
         // 2. Set up output channel information
         std::vector<TrackType> tracks;
