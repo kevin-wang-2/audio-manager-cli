@@ -57,8 +57,10 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
             fread(&header.fmt, 20, 1, fp);
 
             if (header.fmt.cksize > size) {
-                fread(&header.fmtExt, 24, 1, fp);
-                size += 24;
+                fread(&header.fmtExt.cbSize, 2, 1, fp);
+
+                fread((char *)&header.fmtExt + 2, header.fmtExt.cbSize, 1, fp);
+                size += 2 + header.fmtExt.cbSize;
             }
 
             if (header.fmt.cksize > size) {
