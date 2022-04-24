@@ -53,17 +53,19 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
         fread(temp, 1, 4, fp);
         switch(findByID(temp)) {
         case RHC_FMT:
-            size = sizeof(RiffFmt) - 4;
-            fread(&header.fmt, sizeof(RiffFmt), 1, fp);
-            size += header.fmt.cbSize;
+            size = 16;
+            fread(&header.fmt, 20, 1, fp);
 
-            if (header.fmt.cbSize != 0) {
-                fread(&header.fmtExt, header.fmt.cbSize, 1, fp);
+            if (header.fmt.cksize > size) {
+                fread(&header.fmtExt, 24, 1, fp);
+                size += 24;
             }
 
             if (header.fmt.cksize > size) {
                 fseek(fp, header.fmt.cksize - size, SEEK_CUR);
             }
+
+            break;
         case RHC_DATA:
             fread(&header.audioSize, 4, 1, fp);
             return;
@@ -77,24 +79,34 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
 }
 
 void WaveformPlayer::parseRIFFContent(FILE *fp) {
-    int sampleSize = header.fmt.nBitsPerSample / 8 * header.fmt.nChannels;
+    int sampleByteCnt = header.fmt.nBitsPerSample / 8;
+    int sampleSize = sampleByteCnt * header.fmt.nChannels;
 
-    for (int i = 0; i < header.audioSize / sampleSize; i++) {
-        unsigned char sample[header.fmt.nBitsPerSample / 8 * header.fmt.nChannels];
 
-        fread(sample, header.fmt.nBitsPerSample / 8, header.fmt.nChannels, fp);
+    if (header.fmt.wFormatTag == WF_PCM) {
+        for (int i = 0; i < header.audioSize / sampleSize; i++) {
+            unsigned char sample[sampleByteCnt * header.fmt.nChannels];
+            fread(sample, sampleByteCnt, header.fmt.nChannels, fp);
 
-        std::vector<double> vsample;
-        vsample.resize(header.fmt.nChannels);
+            std::vector<double> vsample;
+            vsample.resize(header.fmt.nChannels);
+            for (int j = 0; j < header.fmt.nChannels; j++) {
+                unsigned int currentSample = 0;
+                for (unsigned int offset = 0; offset < sampleByteCnt; offset++) {
+                    currentSample += sample[j * sampleByteCnt + offset] << (offset * 8);
+                }
 
-        for (int j = 0; j < header.fmt.nChannels; j++) {
-            vsample[j] = intClip(sample[j * header.fmt.nBitsPerSample / 8]
-                    + ((unsigned int)sample[j * header.fmt.nBitsPerSample / 8 + 1] << 8)
-                    + ((unsigned int)sample[j * header.fmt.nBitsPerSample / 8 + 2] << 16)
-                    + ((sample[j * header.fmt.nBitsPerSample / 8 + 2] & 0x80) ? 0xff000000 : 0), header.fmt.bitDepth);
+                if (sample[j * sampleByteCnt + sampleByteCnt - 1] & 0x80) {
+                    for (unsigned int offset = sampleByteCnt; offset < 4; offset++) {
+                        currentSample += 0xff << (offset * 8);
+                    }
+                }
+
+                vsample[j] = intClip(*(int *)(&currentSample), header.fmt.nBitsPerSample);
+            }
+
+            samples.emplace_back(std::move(vsample));
         }
-
-        samples.emplace_back(std::move(vsample));
     }
 }
 

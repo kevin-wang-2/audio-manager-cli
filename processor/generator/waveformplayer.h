@@ -14,24 +14,30 @@ class WaveformPlayer : public AudioGenerator
         RHC_UNSUPPORTED
     } RiffHeaderChunk;
 
+    const unsigned int WF_PCM = 1;
+    const unsigned int WF_IEEE_FLOAT = 3;
+    const unsigned int WF_ALAW = 6;
+    const unsigned int WF_MULAW = 7;
+    const unsigned int WF_EXTENSIBLE = 0xFFFE;
+
     typedef struct RiffFmt {
-       unsigned cksize:4;
+       unsigned cksize;
 
-       unsigned wFormatTag:2;
-       unsigned nChannels:2;
+       unsigned short wFormatTag;
+       unsigned short nChannels;
 
-       unsigned nSamplesPerSec:4;
-       unsigned nAvgBytesPerSec:4;
+       unsigned nSamplesPerSec;
+       unsigned nAvgBytesPerSec;
 
-       unsigned nBlockAlign:2;
-       unsigned nBitsPerSample:2;
-
-       unsigned cbSize;
+       unsigned short nBlockAlign;
+       unsigned short nBitsPerSample;
     } RiffFmt;
 
     typedef struct RiffFmtExt {
-        unsigned wValidBitsPerSample:2;
-        unsigned dwChannelMask:2;
+        unsigned short cbSize;
+
+        unsigned short wValidBitsPerSample;
+        unsigned int dwChannelMask;
 
         unsigned char SubFormat[8];
     } RiffFmtExt;
