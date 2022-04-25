@@ -2,6 +2,7 @@
 #include "sampletimecode.h"
 #include <cstdio>
 #include <cstring>
+#include <thread>
 
 double intClip(int val, int depth) {
     if (depth == 32) return val;
@@ -11,8 +12,6 @@ double intClip(int val, int depth) {
     else if (val < (-(2 << depth) + 1)) return -INT_MAX;
     return val << offset;
 }
-
-
 
 WaveformPlayer::RiffHeaderChunk WaveformPlayer::findByID(char ID[]) {
     switch(ID[0]) {
@@ -80,18 +79,29 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
     }
 }
 
-void WaveformPlayer::parseRIFFContent(FILE *fp) {
+void WaveformPlayer::initSamples() {
     int sampleByteCnt = header.fmt.nBitsPerSample / 8;
     int sampleSize = sampleByteCnt * header.fmt.nChannels;
 
+    samples.resize(header.audioSize / sampleSize);
+
+    for(auto &sample:samples) sample = new double[header.fmt.nChannels];
+
+}
+
+WaveformPlayer::~WaveformPlayer() {
+    for(auto ptr:samples) delete[] ptr;
+}
+
+void WaveformPlayer::loadRIFFContent(FILE *fp) {
+    int sampleByteCnt = header.fmt.nBitsPerSample / 8;
+    int sampleSize = sampleByteCnt * header.fmt.nChannels;
 
     if (header.fmt.wFormatTag == WF_PCM) {
         for (int i = 0; i < header.audioSize / sampleSize; i++) {
             unsigned char sample[sampleByteCnt * header.fmt.nChannels];
             fread(sample, sampleByteCnt, header.fmt.nChannels, fp);
 
-            std::vector<double> vsample;
-            vsample.resize(header.fmt.nChannels);
             for (int j = 0; j < header.fmt.nChannels; j++) {
                 unsigned int currentSample = 0;
                 for (unsigned int offset = 0; offset < sampleByteCnt; offset++) {
@@ -104,12 +114,22 @@ void WaveformPlayer::parseRIFFContent(FILE *fp) {
                     }
                 }
 
-                vsample[j] = intClip(*(int *)(&currentSample), header.fmt.nBitsPerSample);
+                samples[i][j] = intClip(*(int *)(&currentSample), header.fmt.nBitsPerSample);
             }
 
-            samples.emplace_back(std::move(vsample));
+            loadedSamples++;
         }
     }
+
+    fclose(fp);
+}
+
+void WaveformPlayer::parseRIFFContent(FILE *fp) {
+    initSamples();
+
+    latencyOffset = SampleTimeCode::get();
+
+    loadThread = std::thread([this, fp]() { this->loadRIFFContent(fp); });
 }
 
 void WaveformPlayer::parseRIFF(const std::string &fn, TrackType type) {
@@ -138,8 +158,6 @@ void WaveformPlayer::parseRIFF(const std::string &fn, TrackType type) {
 
     //3. Parse Content
     parseRIFFContent(fp);
-
-    fclose(fp);
 }
 
 void WaveformPlayer::parseRIFF(const std::string &fn, const std::vector<TrackType> &type) {
@@ -167,13 +185,23 @@ void WaveformPlayer::fillBuffer(int track, double *buffer[], int bufferSize) {
         start += trackCnt[otracks[prev]];
     }
 
-    for (int channel = start; channel < start + trackCnt[otracks[track]]; channel++) {
-        if (samples[0].size() > channel) {
-            for (int offset = 0; offset < bufferSize; offset++) {
-                    buffer[channel - start][offset] = samples[samplePos + offset][channel];
-            }
-        } else {
+    if ((loadedSamples < samplePos + bufferSize) && (samples.size() >= samplePos + bufferSize)) {
+        // Not Yet Loaded, stop playing and add some latency
+
+        for (int channel = start; channel < start + trackCnt[otracks[track]]; channel++) {
             memset(buffer[channel - start], 0, bufferSize);
+        }
+
+        latencyOffset += bufferSize;
+    } else {
+        for (int channel = start; channel < start + trackCnt[otracks[track]]; channel++) {
+            if (header.fmt.nChannels > channel) {
+                for (int offset = 0; offset < bufferSize; offset++) {
+                        buffer[channel - start][offset] = samples[samplePos + offset - latencyOffset][channel];
+                }
+            } else {
+                memset(buffer[channel - start], 0, bufferSize);
+            }
         }
     }
 }

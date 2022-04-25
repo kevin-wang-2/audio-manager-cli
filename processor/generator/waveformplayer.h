@@ -4,9 +4,11 @@
 #include "audiogenerator.h"
 #include <string>
 #include <vector>
+#include <thread>
 
 class WaveformPlayer : public AudioGenerator
 {
+    // RIFF Header
     typedef enum {
         RHC_FMT,
         RHC_DATA,
@@ -56,15 +58,28 @@ class WaveformPlayer : public AudioGenerator
 
     RiffHeader header;
 
-    std::vector<std::vector<double>> samples;
-
     static RiffHeaderChunk findByID(char ID[]);
 
+    // Samples & and sample position
+    std::vector<double *> samples;
+    unsigned int samplePosition = 0;
+
+    // Threading
+    unsigned int loadedSamples = 0;
+    unsigned int latencyOffset = 0;
+
+    // Parsing & initializing
+    void initSamples();
     void parseRIFFHeader(FILE *fp);
     void parseRIFFContent(FILE *fp);
+
+    void loadRIFFContent(FILE *fp);
+
     void parseRIFF(const std::string &fn, TrackType type);
     void parseRIFF(const std::string &fn, const std::vector<TrackType> &type);
 
+    // Threading
+    std::thread loadThread;
 public:
     WaveformPlayer(double _sampleRate, const std::string &fn, TrackType type = TRK_STEREO) :
         AudioGenerator(_sampleRate, 1, {type}) {
@@ -75,7 +90,9 @@ public:
         parseRIFF(fn, type);
     }
 
-    virtual void fillBuffer(int track, double *buffer[], int bufferSize) override;
+    ~WaveformPlayer();
+
+    void fillBuffer(int track, double *buffer[], int bufferSize) final;
 };
 
 #endif // WAVEFORMPLAYER_H
