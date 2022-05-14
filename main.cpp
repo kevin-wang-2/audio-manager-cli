@@ -1,5 +1,6 @@
 #include "asiodriver.h"
 #include "fader.h"
+#include "Imager.h"
 #include "sine.h"
 #include "waveformplayer.h"
 #include "sampletimecode.h"
@@ -53,12 +54,14 @@ select:
 
     WaveformPlayer gen(48000, filename);
     Sine sine(48000, TRK_STEREO, INT_MAX, 0, 440);
+    Imager imager(48000);
     Fader fader(48000, TRK_STEREO);
 
     fader.connectGenerator(gen, 0);
+    imager.connectGenerator(fader, 0);
 
-    drv.connectGenerator(fader, l, {{0, 0}});
-    drv.connectGenerator(fader, r, {{0, 1}});
+    drv.connectGenerator(imager, l, {{0, 0}});
+    drv.connectGenerator(imager, r, {{0, 1}});
 
     drv.setSynchronizationCallback(SampleTimeCode::set);
 
@@ -67,10 +70,10 @@ select:
     drv.startAudio();
 
     double db = 0.0;
-    while(db <= 6.0) {
+    while(db <= 200.0) {
         cin >> db;
 
-        fader.setValue(1, {db});
+        imager.setValue(0, {db});
     }
 
     drv.stopAudio();
