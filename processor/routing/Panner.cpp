@@ -2,8 +2,9 @@
 #include <cstring>
 #include <cmath>
 
-Panner::Panner(double _sampleRate) : AudioGenerator(_sampleRate, TRK_MONO),
-                                     AudioReciever(_sampleRate, 1, {TRK_STEREO}) {
+Panner::Panner(double _sampleRate, PanLaw _pl) : AudioGenerator(_sampleRate, TRK_MONO),
+                                     AudioReciever(_sampleRate, 1, {TRK_STEREO}),
+                                     pl(_pl){
     parameters.resize(1);
 
     // Parameter0 Mute (ON/OFF)
@@ -26,8 +27,20 @@ void Panner::setValue(int id, ParameterValue value) {
     if (id == 0) {
         parameters[0].v.val = value.val;
 
-        lmult = cos((value.val + 45) * M_PI / 180);
-        rmult = sin((value.val + 45) * M_PI / 180);
+        switch (pl) {
+            case PL_3_db:
+                lmult = cos((value.val + 45) * M_PI / 180);
+                rmult = sin((value.val + 45) * M_PI / 180);
+                break;
+            case PL_4_5_db:
+                lmult = sqrt(cos((value.val + 45) * M_PI / 180) * (45 - value.val) / 90);
+                rmult = sqrt(sin((value.val + 45) * M_PI / 180) * (value.val + 45) / 90);
+                break;
+            case PL_6_db:
+                lmult = (45 - value.val) / 90;
+                rmult = (value.val + 45) / 90;
+                break;
+        }
     }
 }
 
