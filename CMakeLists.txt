@@ -40,7 +40,7 @@ set(AUDIO_GENERATOR_SOURCES processor/generator/sine.h processor/generator/sine.
 set(AUDIO_PROCESSOR_SOURCES ${AUDIO_PROCESSOR_SOURCES} ${AUDIO_GENERATOR_SOURCES})
 
 include_directories(processor/routing)
-set(AUDIO_ROUTING_SOURCES processor/routing/fader.h processor/routing/fader.cpp)
+set(AUDIO_ROUTING_SOURCES processor/routing/fader.h processor/routing/fader.cpp processor/routing/Panner.cpp processor/routing/Panner.h)
 set(AUDIO_PROCESSOR_SOURCES ${AUDIO_PROCESSOR_SOURCES} ${AUDIO_ROUTING_SOURCES})
 
 include_directories(processor/effects)
