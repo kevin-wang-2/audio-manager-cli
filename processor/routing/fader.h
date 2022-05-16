@@ -12,6 +12,7 @@
 
 class Fader : public AudioDevice, public AudioGenerator, public AudioReciever
 {
+    double mult = 1.0;
 public:
     Fader(double _sampleRate, TrackType type);
 

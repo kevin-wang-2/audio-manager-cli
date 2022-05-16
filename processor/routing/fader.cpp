@@ -39,6 +39,8 @@ void Fader::setValue(int id, ParameterValue value) {
         break;
     case 1:
         parameters[1].v.val = value.val;
+
+        mult = pow(10, parameters[1].v.val / 20);
         break;
     }
 }
@@ -52,15 +54,12 @@ void Fader::press(int id) {
 void Fader::fillBuffer(int, double *buffer[], int bufferSize) {
     if (parameters[0].v.enu == 1 || noconnection(0)) {
         for (int i = 0; i < trackCnt[otracks[0]]; i++)
-            memset(buffer[i], 0, bufferSize * sizeof(int));
+            memset(buffer[i], 0, bufferSize * sizeof(double));
     } else {
-        // 1. Calculate Amplitude Multiplier
-        double mult = pow(10, parameters[1].v.val / 20);
-
-        // 2. Get upstream buffer
+        // 1. Get upstream buffer
         recieveBuffer(0, buffer, bufferSize);
 
-        // 3. Calculate and fill buffer
+        // 2. Calculate and fill buffer
         for (int i = 0; i < trackCnt[otracks[0]]; i++)
             for (int j = 0; j < bufferSize; j++) buffer[i][j] *= mult;
     }
