@@ -3,8 +3,8 @@
 #include <cmath>
 
 Panner::Panner(double _sampleRate, PanLaw _pl) : AudioGenerator(_sampleRate, TRK_MONO),
-                                     AudioReciever(_sampleRate, 1, {TRK_STEREO}),
-                                     pl(_pl) {
+                                                 AudioReceiver(_sampleRate, 1, {TRK_STEREO}),
+                                                 pl(_pl) {
     parameters.resize(1);
 
     // Parameter0 Mute (ON/OFF)
@@ -66,7 +66,7 @@ void Panner::fillBuffer(int track, double **buffer, int bufferSize) {
 
 // StereoPanner
 StereoPanner::StereoPanner(double _sampleRate, PanLaw _pl) : AudioGenerator(_sampleRate, TRK_STEREO),
-                                                             AudioReciever(_sampleRate, 1, {TRK_STEREO}),
+                                                             AudioReceiver(_sampleRate, 1, {TRK_STEREO}),
                                                              pl(_pl) {
     parameters.resize(2);
 

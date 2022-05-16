@@ -3,7 +3,7 @@
 #include <cmath>
 
 Imager::Imager(double _sampleRate) : AudioGenerator(_sampleRate, TRK_STEREO),
-                                     AudioReciever(_sampleRate, 1, {TRK_STEREO}) {
+                                     AudioReceiver(_sampleRate, 1, {TRK_STEREO}) {
     parameters.resize(1);
 
     // Parameter0 Mute (ON/OFF)

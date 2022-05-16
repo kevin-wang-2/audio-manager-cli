@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cmath>
 
-Fader::Fader(double _sampleRate, TrackType type) : AudioGenerator(_sampleRate, type), AudioReciever(_sampleRate, 1, {type}) {
+Fader::Fader(double _sampleRate, TrackType type) : AudioGenerator(_sampleRate, type), AudioReceiver(_sampleRate, 1, {type}) {
     parameters.resize(2);
 
     // Parameter0 Mute (ON/OFF)

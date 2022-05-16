@@ -11,7 +11,7 @@ typedef enum {
     PL_6_db
 } PanLaw;
 
-class Panner : public AudioDevice, public AudioGenerator, public AudioReciever {
+class Panner : public AudioDevice, public AudioGenerator, public AudioReceiver {
     double lmult, rmult;
     PanLaw pl;
 public:
@@ -25,7 +25,7 @@ public:
     virtual void fillBuffer(int track, double *buffer[], int bufferSize) override;
 };
 
-class StereoPanner : public AudioDevice, public AudioGenerator, public AudioReciever {
+class StereoPanner : public AudioDevice, public AudioGenerator, public AudioReceiver {
     double lmultl, lmultr, rmultl, rmultr;
     PanLaw pl;
 public:

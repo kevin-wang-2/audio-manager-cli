@@ -5,7 +5,7 @@
 #include "audiogenerator.h"
 #include "audioreciever.h"
 
-class Imager : public AudioDevice, public AudioGenerator, public AudioReciever {
+class Imager : public AudioDevice, public AudioGenerator, public AudioReceiver {
 public:
     Imager(double _sampleRate);
 

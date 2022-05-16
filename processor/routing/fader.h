@@ -10,7 +10,7 @@
 #include "audiogenerator.h"
 #include "audioreciever.h"
 
-class Fader : public AudioDevice, public AudioGenerator, public AudioReciever
+class Fader : public AudioDevice, public AudioGenerator, public AudioReceiver
 {
     double mult = 1.0;
 public:

@@ -4,7 +4,7 @@
 1. Basic Audio Routing Layouts - **Finished**
   - Audio Input Interface - **Finished**
 
-    `AudioReciever`, allows multiple device to connect, and multi-track audio input (supports various track format).
+    `AudioReceiver`, allows multiple device to connect, and multi-track audio input (supports various track format).
   - Audio Output Interface - **Finished**
 
      `AudioGenerator`, allow multitrack output

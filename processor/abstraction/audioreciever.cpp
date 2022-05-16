@@ -2,7 +2,7 @@
 #include <cstring>
 #include <stdio.h>
 
-AudioReciever::AudioReciever(double _sampleRate, int _trackNum, std::vector<TrackType> _tracks) :
+AudioReceiver::AudioReceiver(double _sampleRate, int _trackNum, std::vector<TrackType> _tracks) :
     sampleRate(_sampleRate), itrackNum(_trackNum), itracks(std::move(_tracks))
 {
     connections.resize(itrackNum);
@@ -20,7 +20,7 @@ AudioReciever::AudioReciever(double _sampleRate, int _trackNum, std::vector<Trac
  * iTx => {oDx -> [oTx -> [oBx -> {iBx}]]}
  */
 
-void AudioReciever::connectGenerator(AudioGenerator &gen, int track, std::vector<std::pair<int, int>> _bufferSelection) {
+void AudioReceiver::connectGenerator(AudioGenerator &gen, int track, std::vector<std::pair<int, int>> _bufferSelection) {
     if (_bufferSelection.empty()) {
         auto &connectionMap = connections[track][&gen];
         int bufferNumReq = trackCnt[itracks[track]];
@@ -54,11 +54,11 @@ void AudioReciever::connectGenerator(AudioGenerator &gen, int track, std::vector
     }
 }
 
-void AudioReciever::disconnectGenerator(int track) {
+void AudioReceiver::disconnectGenerator(int track) {
     connections[track] = {};
 }
 
-void AudioReciever::receiveBuffer(int track, double *buffer[], int bufferSize) {
+void AudioReceiver::receiveBuffer(int track, double *buffer[], int bufferSize) {
     double dummy[bufferSize];
 
     // 1. Walk through all possible devices

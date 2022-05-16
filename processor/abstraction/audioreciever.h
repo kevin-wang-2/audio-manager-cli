@@ -12,7 +12,7 @@
 #include <vector>
 #include <unordered_map>
 
-class AudioReciever
+class AudioReceiver
 {
     /**
      * @brief connections
@@ -41,7 +41,7 @@ protected:
     }
 
 public:
-    AudioReciever(double _sampleRate, int _trackNum, std::vector<TrackType> _tracks);
+    AudioReceiver(double _sampleRate, int _trackNum, std::vector<TrackType> _tracks);
 
 // Core Functions
     virtual void connectGenerator(AudioGenerator &gen, int track, std::vector<std::pair<int, int>> bufferSelection = {});

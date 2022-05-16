@@ -33,13 +33,13 @@ typedef enum {
     BD_UNSUPPORTED
 } BitDepthType;
 
-class AudioDriver : public AudioReciever
+class AudioDriver : public AudioReceiver
 {
 public:
 
 // Constructors
     AudioDriver(double _sampleRate, int _trackNum, std::vector<TrackType> _tracks)
-        : AudioReciever(_sampleRate, _trackNum, std::move(_tracks)) {}
+        : AudioReceiver(_sampleRate, _trackNum, std::move(_tracks)) {}
 
 // Driver Selection
     virtual std::vector<std::string> getDriverNames() const = 0;
