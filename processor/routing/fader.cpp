@@ -25,7 +25,7 @@ Fader::Fader(double _sampleRate, TrackType type) : AudioGenerator(_sampleRate, t
     name = "Fader";
 }
 
-
+#include <iostream>
 
 // Device Methods
 void Fader::setValue(int id, ParameterValue value) {
