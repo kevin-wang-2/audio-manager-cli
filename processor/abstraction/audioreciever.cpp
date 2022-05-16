@@ -58,7 +58,7 @@ void AudioReciever::disconnectGenerator(int track) {
     connections[track] = {};
 }
 
-void AudioReciever::recieveBuffer(int track, double *buffer[], int bufferSize) {
+void AudioReciever::receiveBuffer(int track, double *buffer[], int bufferSize) {
     double dummy[bufferSize];
 
     // 1. Walk through all possible devices

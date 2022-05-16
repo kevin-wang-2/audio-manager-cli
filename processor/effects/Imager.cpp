@@ -49,7 +49,7 @@ void Imager::fillBuffer(int, double *buffer[], int bufferSize) {
          * Then, recover the L and R from the M and S
          */
         // 1. Get upstream buffer
-        recieveBuffer(0, buffer, bufferSize);
+        receiveBuffer(0, buffer, bufferSize);
 
         // 2. Calculate each buffer
         for (int i = 0; i < bufferSize; i++) {

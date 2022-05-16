@@ -31,7 +31,7 @@ protected:
     int itrackNum;
     std::vector<TrackType> itracks;
 
-    virtual void recieveBuffer(int track, double *buffer[], int bufferSize);
+    void receiveBuffer(int track, double *buffer[], int bufferSize);
     virtual bool noconnection(int track) { return connections[track].empty(); }
 
     virtual void resizeTrack(int trackNum) {

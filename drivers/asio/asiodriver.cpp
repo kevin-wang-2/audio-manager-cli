@@ -198,7 +198,7 @@ ASIOTime *AsioDriver::bufferSwitchTimeInfo(ASIOTime *timeInfo, long index, ASIOB
 
     for (int track = 0; track < activeDriver->itrackNum; track++) {
         if (!activeDriver->noconnection(track)) {
-            activeDriver->recieveBuffer(track, pbuffer, bufferSize);
+            activeDriver->receiveBuffer(track, pbuffer, bufferSize);
             activeDriver->channels[track + asioDriverInfo.inputChannels].fillBuffer(buffer, index);
         }
     }

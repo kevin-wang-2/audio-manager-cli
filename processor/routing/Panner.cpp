@@ -54,7 +54,7 @@ void Panner::fillBuffer(int track, double **buffer, int bufferSize) {
     } else {
         // Directly use the lmult and rmult to calculate the desired L and R response
         // 1. Receive Buffer
-        recieveBuffer(0, buffer, bufferSize);
+        receiveBuffer(0, buffer, bufferSize);
 
         // 2. Calculate multiplications
         for (int i = 0; i < bufferSize; i++) {
@@ -145,7 +145,7 @@ void StereoPanner::fillBuffer(int track, double **buffer, int bufferSize) {
     } else {
         // Directly use the lmult and rmult to calculate the desired L and R response
         // 1. Receive Buffer
-        recieveBuffer(0, buffer, bufferSize);
+        receiveBuffer(0, buffer, bufferSize);
 
         // 2. Calculate multiplications
         for (int i = 0; i < bufferSize; i++) {

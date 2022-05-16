@@ -57,7 +57,7 @@ void Fader::fillBuffer(int, double *buffer[], int bufferSize) {
             memset(buffer[i], 0, bufferSize * sizeof(double));
     } else {
         // 1. Get upstream buffer
-        recieveBuffer(0, buffer, bufferSize);
+        receiveBuffer(0, buffer, bufferSize);
 
         // 2. Calculate and fill buffer
         for (int i = 0; i < trackCnt[otracks[0]]; i++)
