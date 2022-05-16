@@ -53,7 +53,7 @@ void setStringParam(AudioDevice &dev, int param, const string &val) {
     if (type == DP_Button) {
         dev.press(param);
     } else if (type == DP_Switch) {
-        if (val == "Off" || val == "0") dev.setValue(param, {0});
+        if (val == "Off" || val == "0") dev.setValue(param, {.enu = 0});
         else dev.setValue(param, {.enu =  1});
     } else {
         auto vType = dev.getParameterValueType(param);
@@ -177,7 +177,7 @@ select:
             if (delimPos != string::npos && actionPos != string::npos && delimPos < actionPos) {
                 string efxId = sub.substr(0, delimPos);
                 string paramId = sub.substr(delimPos + 1, actionPos - delimPos);
-                string val = sub.substr(actionPos, string::npos);
+                string val = sub.substr(actionPos + 1, string::npos);
 
                 try {
                     int efx = stoi(efxId);
