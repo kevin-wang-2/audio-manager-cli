@@ -8,38 +8,38 @@ double intClip(int val, int depth) {
     if (depth == 32) return val;
 
     int offset = 32 - depth;
-    if(val > ((2 << depth) - 1)) return INT_MAX;
+    if (val > ((2 << depth) - 1)) return INT_MAX;
     else if (val < (-(2 << depth) + 1)) return -INT_MAX;
     return val << offset;
 }
 
 WaveformPlayer::RiffHeaderChunk WaveformPlayer::findByID(char ID[]) {
-    switch(ID[0]) {
-    case 'd':
-        if (ID[1] == 'a' && ID[2] == 't' && ID[3] == 'a') {
-            return RHC_DATA;
-        } else {
-            return RHC_UNSUPPORTED;
-        }
-    case 'f':
-        switch(ID[1]) {
-        case 'a':
-            if (ID[2] == 'c' && ID[3] == 't') {
-                return RHC_FACT;
+    switch (ID[0]) {
+        case 'd':
+            if (ID[1] == 'a' && ID[2] == 't' && ID[3] == 'a') {
+                return RHC_DATA;
             } else {
                 return RHC_UNSUPPORTED;
             }
-        case 'm':
-            if (ID[2] == 't') {
-                return RHC_FMT;
-            } else {
-                return RHC_UNSUPPORTED;
+        case 'f':
+            switch (ID[1]) {
+                case 'a':
+                    if (ID[2] == 'c' && ID[3] == 't') {
+                        return RHC_FACT;
+                    } else {
+                        return RHC_UNSUPPORTED;
+                    }
+                case 'm':
+                    if (ID[2] == 't') {
+                        return RHC_FMT;
+                    } else {
+                        return RHC_UNSUPPORTED;
+                    }
+                default:
+                    return RHC_UNSUPPORTED;
             }
         default:
             return RHC_UNSUPPORTED;
-        }
-    default:
-        return RHC_UNSUPPORTED;
     }
 }
 
@@ -50,31 +50,31 @@ void WaveformPlayer::parseRIFFHeader(FILE *fp) {
         char temp[4] = {0};
         unsigned int size;
         fread(temp, 1, 4, fp);
-        switch(findByID(temp)) {
-        case RHC_FMT:
-            size = 16;
-            fread(&header.fmt, 20, 1, fp);
+        switch (findByID(temp)) {
+            case RHC_FMT:
+                size = 16;
+                fread(&header.fmt, 20, 1, fp);
 
-            if (header.fmt.cksize > size) {
-                fread(&header.fmtExt.cbSize, 2, 1, fp);
+                if (header.fmt.cksize > size) {
+                    fread(&header.fmtExt.cbSize, 2, 1, fp);
 
-                fread((char *)&header.fmtExt + 2, header.fmtExt.cbSize, 1, fp);
-                size += 2 + header.fmtExt.cbSize;
-            }
+                    fread((char *) &header.fmtExt + 2, header.fmtExt.cbSize, 1, fp);
+                    size += 2 + header.fmtExt.cbSize;
+                }
 
-            if (header.fmt.cksize > size) {
-                fseek(fp, header.fmt.cksize - size, SEEK_CUR);
-            }
+                if (header.fmt.cksize > size) {
+                    fseek(fp, header.fmt.cksize - size, SEEK_CUR);
+                }
 
-            break;
-        case RHC_DATA:
-            fread(&header.audioSize, 4, 1, fp);
-            return;
-        case RHC_FACT:
-        default:
-            fread(&size, 4, 1, fp);
+                break;
+            case RHC_DATA:
+                fread(&header.audioSize, 4, 1, fp);
+                return;
+            case RHC_FACT:
+            default:
+                fread(&size, 4, 1, fp);
 
-            fseek(fp, size, SEEK_CUR);
+                fseek(fp, size, SEEK_CUR);
         }
     }
 }
@@ -85,12 +85,12 @@ void WaveformPlayer::initSamples() {
 
     samples.resize(header.audioSize / sampleSize);
 
-    for(auto &sample:samples) sample = new double[header.fmt.nChannels];
+    for (auto &sample: samples) sample = new double[header.fmt.nChannels];
 
 }
 
 WaveformPlayer::~WaveformPlayer() {
-    for(auto ptr:samples) delete[] ptr;
+    for (auto ptr: samples) delete[] ptr;
 }
 
 void WaveformPlayer::loadRIFFContent(FILE *fp) {
@@ -114,7 +114,9 @@ void WaveformPlayer::loadRIFFContent(FILE *fp) {
                     }
                 }
 
-                samples[i][j] = intClip(*(int *)(&currentSample), header.fmt.nBitsPerSample);
+                vMutex.lock();
+                samples[i][j] = intClip(*(int *) (&currentSample), header.fmt.nBitsPerSample);
+                vMutex.unlock();
             }
 
             loadedSamples++;
@@ -176,6 +178,8 @@ void WaveformPlayer::parseRIFF(const std::string &fn, const std::vector<TrackTyp
     fclose(fp);
 }
 
+#include <iostream>
+
 void WaveformPlayer::fillBuffer(int track, double *buffer[], int bufferSize) {
     int samplePos = SampleTimeCode::get();
 
@@ -194,10 +198,20 @@ void WaveformPlayer::fillBuffer(int track, double *buffer[], int bufferSize) {
 
         latencyOffset += bufferSize;
     } else {
+        if (samplePos < latencyOffset) {
+            latencyOffset = samplePos;
+        }
+
         for (int channel = start; channel < start + trackCnt[otracks[track]]; channel++) {
             if (header.fmt.nChannels > channel) {
                 for (int offset = 0; offset < bufferSize; offset++) {
+                    vMutex.lock();
+                    if (samplePos + offset - latencyOffset >= samples.size()) {
+                        buffer[channel - start][offset] = 0;
+                    } else {
                         buffer[channel - start][offset] = samples[samplePos + offset - latencyOffset][channel];
+                    }
+                    vMutex.unlock();
                 }
             } else {
                 memset(buffer[channel - start], 0, bufferSize);

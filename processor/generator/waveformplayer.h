@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 class WaveformPlayer : public AudioGenerator
 {
@@ -80,6 +81,7 @@ class WaveformPlayer : public AudioGenerator
 
     // Threading
     std::thread loadThread;
+    std::mutex vMutex;
 public:
     WaveformPlayer(double _sampleRate, const std::string &fn, TrackType type = TRK_STEREO) :
         AudioGenerator(_sampleRate, 1, {type}) {
