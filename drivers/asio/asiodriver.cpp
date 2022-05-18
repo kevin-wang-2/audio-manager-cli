@@ -192,6 +192,8 @@ ASIOTime *AsioDriver::bufferSwitchTimeInfo(ASIOTime *timeInfo, long index, ASIOB
     activeDriver->s_cb(asioDriverInfo.samples);
 
     int bufferSize = asioDriverInfo.preferredSize;
+
+    /*
     double buffer[bufferSize];
     double *pbuffer[1];
     pbuffer[0] = buffer;
@@ -202,6 +204,30 @@ ASIOTime *AsioDriver::bufferSwitchTimeInfo(ASIOTime *timeInfo, long index, ASIOB
             activeDriver->channels[track + asioDriverInfo.inputChannels].fillBuffer(buffer, index);
         }
     }
+     */
+
+    std::vector<double **> vbuffer;
+    vbuffer.resize(activeDriver->itrackNum);
+
+    for (int track = 0; track < activeDriver->itrackNum; track++) {
+        vbuffer[track] = new double*[trackCnt[activeDriver->itracks[track]]];
+        for (int channel = 0; channel < trackCnt[activeDriver->itracks[track]]; channel++) {
+            vbuffer[track][channel] = new double[bufferSize];
+        }
+    }
+
+    activeDriver->receiveBuffer(vbuffer, bufferSize);
+
+    for (int track = 0; track < activeDriver->itrackNum; track++) {
+        if (!activeDriver->noconnection(track)) {
+            activeDriver->channels[track + asioDriverInfo.inputChannels].fillBuffer(vbuffer[track][0], index);
+        }
+        for (int channel = 0; channel < trackCnt[activeDriver->itracks[track]]; channel++) {
+            delete[] vbuffer[track][channel];
+        }
+        delete[] vbuffer[track];
+    }
+
     /*
 
     if (processedSamples >= asioDriverInfo.sampleRate * TEST_RUN_TIME)	// roughly measured

@@ -31,6 +31,7 @@ protected:
     int itrackNum;
     std::vector<TrackType> itracks;
 
+    void receiveBuffer(std::vector<double **> &buffer, int bufferSize);
     void receiveBuffer(int track, double *buffer[], int bufferSize);
     virtual bool noconnection(int track) { return connections[track].empty(); }
 
