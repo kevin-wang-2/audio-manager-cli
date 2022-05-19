@@ -44,7 +44,7 @@ set(AUDIO_ROUTING_SOURCES processor/routing/fader.h processor/routing/fader.cpp 
 set(AUDIO_PROCESSOR_SOURCES ${AUDIO_PROCESSOR_SOURCES} ${AUDIO_ROUTING_SOURCES})
 
 include_directories(processor/effects)
-set(AUDIO_EFFECTS_SOURCES processor/effects/Imager.cpp processor/effects/Imager.h)
+set(AUDIO_EFFECTS_SOURCES processor/effects/Imager.cpp processor/effects/Imager.h processor/effects/HighPassFilter.cpp processor/effects/HighPassFilter.h)
 set(AUDIO_PROCESSOR_SOURCES ${AUDIO_PROCESSOR_SOURCES} ${AUDIO_EFFECTS_SOURCES})
 
 include_directories(timing)

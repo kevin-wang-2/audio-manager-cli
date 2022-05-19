@@ -3,6 +3,7 @@
 #include "fader.h"
 #include "Imager.h"
 #include "sine.h"
+#include "HighPassFilter.h"
 #include "waveformplayer.h"
 #include "sampletimecode.h"
 #include <iostream>
@@ -116,12 +117,15 @@ select:
     cin >> filename;
 
     WaveformPlayer gen(48000, filename);
+    Sine sine(48000, TRK_STEREO);
     StereoPanner panner(48000);
     Fader fader(48000, TRK_STEREO);
+    MultiHighPassFilter hpf(48000, TRK_STEREO);
     Imager imager(48000);
 
     imager.connectGenerator(gen, 0);
-    panner.connectGenerator(imager, 0);
+    hpf.connectGenerator(imager, 0);
+    panner.connectGenerator(hpf, 0);
     fader.connectGenerator(panner, 0);
 
     drv.connectGenerator(fader, l, {{0, 0}});
@@ -148,7 +152,7 @@ select:
             // TODO: Replace later for formal mixer setup
             if (actionPos == string::npos) {
                 if (sub == "chain") {
-                    cout << "0 imager, 1 panner, 2 fader" << endl;
+                    cout << "0 imager, 1 hpf, 2 panner, 3 fader" << endl;
                 } else {
                     string::size_type sz = 0;
                     try {
@@ -159,9 +163,12 @@ select:
                                     printParameterList(imager);
                                     break;
                                 case 1:
-                                    printParameterList(panner);
+                                    printParameterList(hpf);
                                     break;
                                 case 2:
+                                    printParameterList(panner);
+                                    break;
+                                case 3:
                                     printParameterList(fader);
                                     break;
                             }
@@ -187,9 +194,12 @@ select:
                             setStringParam(imager, param, val);
                             break;
                         case 1:
-                            setStringParam(panner, param, val);
+                            setStringParam(hpf, param, val);
                             break;
                         case 2:
+                            setStringParam(panner, param, val);
+                            break;
+                        case 3:
                             setStringParam(fader, param, val);
                             break;
                     }
