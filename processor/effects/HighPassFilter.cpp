@@ -1,4 +1,5 @@
 #include "HighPassFilter.h"
+#include "sampletimecode.h"
 #include <cmath>
 #include <cstring>
 
@@ -23,6 +24,7 @@ HighPassFilter::HighPassFilter(double _sampleRate, TrackType type) : AudioGenera
     parameters[1].v.val = 0.707;
 
     filters = new BiQuad[trackCnt[type]];
+    bufferStorage = new double*[trackCnt[type]];
 
     for (int channel = 0; channel < trackCnt[type]; channel++) {
         filters[channel].b0 = 1;
@@ -30,6 +32,7 @@ HighPassFilter::HighPassFilter(double _sampleRate, TrackType type) : AudioGenera
         filters[channel].b2 = 0;
         filters[channel].a1 = 0;
         filters[channel].a2 = 0;
+        bufferStorage[channel] = nullptr;
     }
 
     name = "HighPassFilter";
@@ -91,18 +94,40 @@ void HighPassFilter::fillBuffer(int track, double **buffer, int bufferSize) {
         for (int channel = 0; channel < trackCnt[itracks[0]]; channel++)
             memset(buffer[channel], 0, bufferSize * sizeof(int));
     } else {
-        receiveBuffer(0, buffer, bufferSize);
+        int samplePos = SampleTimeCode::get();
 
-        for (int channel = 0; channel < trackCnt[itracks[0]]; channel++) {
-            if (lastBufferSize != bufferSize) {
+        if (lastBufferSize != bufferSize || samplePos < lastSamplePos) {
+            for (int channel = 0; channel < trackCnt[itracks[0]]; channel++)
                 filters[channel].reset();
-            }
 
-            for (int offset = 0; offset < bufferSize; offset++) {
-                buffer[channel][offset] = filters[channel].calculateSample(buffer[channel][offset]);
+            if (lastBufferSize != bufferSize) {
+                for (int channel = 0; channel < trackCnt[itracks[0]]; channel++) {
+                    delete[] bufferStorage[channel];
+                    bufferStorage[channel] = new double[bufferSize];
+                }
             }
         }
 
+        if (samplePos > lastSamplePos) {
+            receiveBuffer(0, buffer, bufferSize);
+
+            for (int channel = 0; channel < trackCnt[itracks[0]]; channel++) {
+                for (int offset = 0; offset < bufferSize; offset++) {
+                    buffer[channel][offset] = filters[channel].calculateSample(buffer[channel][offset]);
+                }
+            }
+
+            for (int channel = 0; channel < trackCnt[itracks[0]]; channel++) {
+                memcpy(bufferStorage[channel], buffer[channel], bufferSize * sizeof(double));
+            }
+        } else {
+            for (int channel = 0; channel < trackCnt[itracks[0]]; channel++) {
+                memcpy(buffer[channel], bufferStorage[channel], bufferSize * sizeof(double));
+            }
+
+        }
+
         lastBufferSize = bufferSize;
+        lastSamplePos = samplePos;
     }
 }
