@@ -120,7 +120,7 @@ select:
     Sine sine(48000, TRK_STEREO);
     StereoPanner panner(48000);
     Fader fader(48000, TRK_STEREO);
-    MultiHighPassFilter hpf(48000, TRK_STEREO);
+    HighPassFilter hpf(48000, TRK_STEREO);
     Imager imager(48000);
 
     imager.connectGenerator(gen, 0);

@@ -57,7 +57,7 @@ include_directories(meta)
 set(META meta/audiometa.h meta/AudioError.h)
 
 set(CLI_ENTRANCE ${ASIO_SOURCES} ${ASIO_HEADERS} ${AUDIO_DRIVER_SOURCES}
-    ${AUDIO_PROCESSOR_SOURCES} ${TIMING_SOURCES} ${META} ${CLI_SOURCES} main.cpp)
+    ${AUDIO_PROCESSOR_SOURCES} ${TIMING_SOURCES} ${META} ${CLI_SOURCES} main.cpp processor/effects/QuadFilter.cpp processor/effects/QuadFilter.h)
 
 add_executable(asio_cli ${CLI_ENTRANCE})
 
